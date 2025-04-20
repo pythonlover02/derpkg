@@ -1,2 +1,2 @@
 # derpkg
-A simple package manager wrapper
+My custom generic package manager wrapper

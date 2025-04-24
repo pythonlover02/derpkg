@@ -4,7 +4,7 @@ My custom generic package manager wrapper, created because I usually use a bunch
 ### Prerequisites
 
 - Python 3.8 or higher
-- PyInstaller
+- Pip
 - Sudo privileges (for installation)
 
 ## Installation

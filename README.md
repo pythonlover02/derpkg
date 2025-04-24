@@ -3,7 +3,7 @@ My custom generic package manager wrapper, created because I usually use a bunch
 
 ### Prerequisites
 
-- Python 3.6 or higher
+- Python 3.8 or higher
 - PyInstaller
 - Sudo privileges (for installation)
 

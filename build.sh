@@ -11,7 +11,6 @@ if [ ! -d "py_env" ]; then
 else
     # Just activate the existing virtual environment
     source py_env/bin/activate
-    pip update
 fi
 
 # Create release directory if it doesn't exist

@@ -1,31 +1,42 @@
 #!/bin/bash
 
-# Check if virtual environment exists, if not create it
-if [ ! -d "py_env" ]; then
+# configuration
+VENV_DIR="py_env"
+REQ_FILE="requirements.txt"
+REQ_HASH_FILE="$VENV_DIR/requirements.hash"
+SRC_FILE="src/derpkg.py"
+RELEASE_DIR="release"
+BASE_FILENAME=$(basename "$SRC_FILE" .py)
+SPEC_FILE="$BASE_FILENAME.spec"
+
+# create fresh venv if it doesn't exist
+if [ ! -d "$VENV_DIR" ]; then
     echo "Creating Python virtual environment..."
-    python -m venv py_env
-    
-    # Activate virtual environment and install requirements
-    source py_env/bin/activate
-    pip install -r requirements.txt
-else
-    # Just activate the existing virtual environment
-    source py_env/bin/activate
+    python -m venv "$VENV_DIR"
 fi
 
-# Create release directory if it doesn't exist
-mkdir -p release
+# activate venv, update dependencies and build
+source "$VENV_DIR/bin/activate"
 
-# Run PyInstaller on the derpkg.py file
-pyinstaller --onefile src/derpkg.py
+current_hash=$(md5sum "$REQ_FILE" 2>/dev/null | cut -d' ' -f1)
+stored_hash=$(cat "$REQ_HASH_FILE" 2>/dev/null)
 
-# Copy the executable to the release folder
-cp dist/derpkg release/
+if [ ! -f "$REQ_HASH_FILE" ] || [ "$current_hash" != "$stored_hash" ]; then
+    echo "Updating dependencies..."
+    pip install --upgrade pip
+    pip install -r "$REQ_FILE"
+    echo "$current_hash" > "$REQ_HASH_FILE"
+fi
 
-# Remove build artifacts
-rm -rf dist build __pycache__ derpkg.spec
+echo "Building executable..."
+pyinstaller --onefile "$SRC_FILE"
 
-echo "Build completed successfully. Executable is in the release folder."
+# move to release folder
+mkdir -p "$RELEASE_DIR"
+cp "dist/$BASE_FILENAME" "$RELEASE_DIR/"
 
-# Deactivate virtual environment
+# cleanup
+rm -rf dist build __pycache__ "$SPEC_FILE"
+
+echo "Build successful! Executable: $RELEASE_DIR/$BASE_FILENAME"
 deactivate
